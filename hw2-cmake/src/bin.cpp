@@ -55,3 +55,13 @@ void Bin::validate() {
 
 }
 
+double Bin::get_dmin() {
+    return local_dmin;
+}
+double Bin::get_davg() {
+    return local_davg;
+}
+double Bin::get_navg() {
+    return local_navg;
+}
+

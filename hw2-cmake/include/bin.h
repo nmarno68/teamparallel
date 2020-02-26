@@ -29,7 +29,16 @@ class Bin{
         // Check if particles are out of the bin's bounds, and move them to a neighboring bin if they are
         void validate();
 
+        double get_dmin();
+        double get_davg();
+        int get_navg();
+
 //    private:
+        // Vars for tracking dmin, davg and navg for each bin
+        double local_dmin;
+        double local_davg;
+        int local_navg;
+
         // Borders of the world - need to know this so that particles bounce off the borders
         // of the world when interacting.
         // Not really necessary?
@@ -45,11 +54,6 @@ class Bin{
         double right_border;
         double center_x;
         double center_y;
-
-        // Vars for tracking dmin, davg and navg for each bin
-        double local_dmin;
-        double local_davg;
-        int local_navg;
 
         // For storing references to the particles in the bin
 //        particle_t* particles;  // This would probably be better as a singly linked list - import from std?

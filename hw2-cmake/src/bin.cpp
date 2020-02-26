@@ -61,7 +61,7 @@ double Bin::get_dmin() {
 double Bin::get_davg() {
     return local_davg;
 }
-double Bin::get_navg() {
+int Bin::get_navg() {
     return local_navg;
 }
 

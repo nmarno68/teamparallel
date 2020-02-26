@@ -26,6 +26,10 @@ class Bin{
 
         // Modifiers
         void set_neighbor(int bin_num, const bin* new_neighbor);
+        void add_particle(const particle_t* new_p);
+
+        // Does the particle-particle interactions
+        void interact();
 
         // Check if particles are out of the bin's bounds, and move them to a neighboring bin if they are
         void validate();
@@ -38,7 +42,6 @@ class Bin{
 //        double max_horizontal;
 //        double min_vertical;
 //        double max_vertical;
-
 
         // Borders of the bin - use this to track when particles are added or removed
         double top_border;

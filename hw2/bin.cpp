@@ -55,4 +55,20 @@ void Bin::set_neighbor(int bin_num, const bin *new_neighbor) {
             bin9 = new_neighbor;
 }
 
+void Bin::add_particle(const particle_t *new_p) {
+    particles.push_back(new_p);
+}
+
+// Does the particle / particle interactions to update acceleration values
+void Bin::interact() {
+    // Iterate through the particles in this bin, and interact with adjacent bins
+    for(auto const& p : particles){
+
+    }
+}
+
+void Bin::validate() {
+    // Iterate over the particles in the particles list, check if they're
+
+}
 

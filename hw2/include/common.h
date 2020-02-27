@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #ifndef __CS267_COMMON_H__
 #define __CS267_COMMON_H__
 

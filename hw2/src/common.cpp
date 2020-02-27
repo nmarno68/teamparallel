@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cmath>
 #include <ctime>
-#include <chrono>
+#include <sys/time.h>
 #include "../include/common.h"
 
 //
@@ -15,16 +15,15 @@
 double read_timer( )
 {
     static bool initialized = false;
-    static std::chrono::time_point<std::chrono::system_clock> start;
-    std::chrono::time_point<std::chrono::system_clock> end;
+    static struct timeval start;
+    struct timeval end{};
     if( !initialized )
     {
-        start = std::chrono::system_clock::now();
+        gettimeofday( &start, nullptr );
         initialized = true;
     }
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> diff = end-start;
-    return diff.count();
+    gettimeofday( &end, nullptr );
+    return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
 }
 
 //  keep density constant
@@ -36,7 +35,7 @@ void set_size( int n, double &size )
 //  Initialize the particle positions and velocities
 void init_particles( int n, particle_t *p, double &size )
 {
-    srand48( time( NULL ) );
+    srand48( time( nullptr ) );
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
     

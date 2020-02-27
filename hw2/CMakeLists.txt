@@ -8,7 +8,7 @@ project(hw2)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
 # Sets flags, to be used for different targets
-set(COMMON_FLAGS, " -std=c++11 -O3 -Wall -Wextra -pedantic ") # ALL will have these
+set(COMMON_FLAGS, " -O3 -Wall -Wextra -pedantic ") # ALL will have these
 set(SERIAL_FLAGS, "")
 set(OPENMP_FLAGS, " -fopenmp ")
 set(MPI_FLAGS, "")

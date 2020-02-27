@@ -43,6 +43,12 @@ target_compile_options(serial
         PRIVATE "${SERIAL_FLAGS}")
 target_link_libraries(serial common chunk)
 
+# Make target openmp
+add_executable(openmp src/openmp.cpp include/common.h include/chunk.h)
+target_compile_options(openmp
+        PRIVATE "${OPENMP_FLAGS}")
+target_link_libraries(openmp common chunk)
+
 # Make target autograder
 add_executable(autograder src/autograder.cpp include/common.h)
 target_link_libraries(autograder common)

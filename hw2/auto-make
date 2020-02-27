@@ -4,5 +4,9 @@ rm -r build bin
 mkdir build
 cd build
 cmake ..
+make
+chmod +x ../bin/auto-bridges-openmp16
+chmod +x ../bin/auto-bridges-serial
+
 
 

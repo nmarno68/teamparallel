@@ -19,10 +19,10 @@ double read_timer( )
     struct timeval end{};
     if( !initialized )
     {
-        gettimeofday( &start, nullptr );
+        gettimeofday( &start, NULL );
         initialized = true;
     }
-    gettimeofday( &end, nullptr );
+    gettimeofday( &end, NULL );
     return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
 }
 
@@ -35,7 +35,7 @@ void set_size( int n, double &size )
 //  Initialize the particle positions and velocities
 void init_particles( int n, particle_t *p, double &size )
 {
-    srand48( time( nullptr ) );
+    srand48( time( NULL ) );
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
     

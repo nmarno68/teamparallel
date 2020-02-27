@@ -28,7 +28,7 @@ add_compile_options("${COMMON_FLAGS}")
 #   STATIC -> .a
 #   SHARED -> .so
 #add_library(thing STATIC src/thing.cpp)
-#add_library(common STATIC src/common.cpp include/chunk.h)
+add_library(common STATIC src/common.cpp include/chunk.h)
 add_library(chunk STATIC src/chunk.cpp include/chunk.h)
 
 # Make target serial

@@ -30,10 +30,10 @@ int main( int argc, char **argv )
 
     int num_particles = read_int( argc, argv, "-n", 1000 );
     double cutoff_scaling = read_double( argc, argv, "-nchunks", 5 );
-    char *savename = read_string( argc, argv, "-o", nullptr );
-    char *sumname = read_string( argc, argv, "-s", nullptr );
-    FILE *fsave = savename ? fopen( savename, "w" ) : nullptr;
-    FILE *fsum = sumname ? fopen ( sumname, "a" ) : nullptr;
+    char *savename = read_string( argc, argv, "-o", NULL );
+    char *sumname = read_string( argc, argv, "-s", NULL );
+    FILE *fsave = savename ? fopen( savename, "w" ) : NULL;
+    FILE *fsum = sumname ? fopen ( sumname, "a" ) : NULL;
     // Whether or not to do correctness checks and particle output
     bool opt_no = find_option(argc, argv, "-no") != -1;
     bool verbose = find_option(argc, argv, "-v") != -1;
@@ -45,7 +45,7 @@ int main( int argc, char **argv )
     double field_size; // The size of the square particles exist in.
 
     // Create particles
-    auto *particles = (particle_t*) malloc( num_particles * sizeof(particle_t) );
+    particle_t* particles = (particle_t*) malloc( num_particles * sizeof(particle_t) );
     set_size(num_particles, field_size);
     init_particles(num_particles, particles, field_size);
 

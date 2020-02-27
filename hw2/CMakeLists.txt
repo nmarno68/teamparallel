@@ -8,7 +8,7 @@ project(hw2)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
 # Sets flags, to be used for different targets
-set(COMMON_FLAGS, " -std=c++1 -O3 -Wall -Wextra -pedantic ") # ALL will have these
+set(COMMON_FLAGS, " -O3 -Wall -Wextra -pedantic ") # ALL will have these
 set(SERIAL_FLAGS, "")
 set(OPENMP_FLAGS, " -fopenmp ")
 set(MPI_FLAGS, "")
@@ -27,8 +27,8 @@ add_compile_options("${COMMON_FLAGS}")
 # Set shared libraries to be compiled only once.
 #   STATIC -> .a
 #   SHARED -> .so
-add_library(thing STATIC src/thing.cpp)
-add_library(common STATIC src/common.cpp include/chunk.h)
+#add_library(thing STATIC src/thing.cpp)
+#add_library(common STATIC src/common.cpp include/chunk.h)
 add_library(chunk STATIC src/chunk.cpp include/chunk.h)
 
 # Make target serial
@@ -38,9 +38,9 @@ target_compile_options(serial
 #        PRIVATE "${COMMON_FLAGS} ${SERIAL_FLAGS}")
 target_link_libraries(serial common chunk)
 
-## Make target "Hello world"!
-add_executable(hello src/helloworld.cpp include/thing.h)
-target_link_libraries(hello common thing)
+# Make target "Hello world"!
+#add_executable(hello src/helloworld.cpp include/thing.h)
+#target_link_libraries(hello common thing)
 
 
 

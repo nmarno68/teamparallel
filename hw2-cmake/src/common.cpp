@@ -1,12 +1,12 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <iostream>
-#include <assert.h>
-#include <float.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
-#include <sys/time.h>
+#include <cassert>
+#include <cfloat>
+#include <cstring>
+#include <cmath>
+#include <ctime>
+#include <chrono>
 #include "../include/common.h"
 
 //
@@ -15,15 +15,16 @@
 double read_timer( )
 {
     static bool initialized = false;
-    static struct timeval start;
-    struct timeval end;
+    static std::chrono::time_point<std::chrono::system_clock> start;
+    std::chrono::time_point<std::chrono::system_clock> end;
     if( !initialized )
     {
-        gettimeofday( &start, nullptr );
+        start = std::chrono::system_clock::now();
         initialized = true;
     }
-    gettimeofday( &end, nullptr );
-    return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> diff = end-start;
+    return diff.count();
 }
 
 //  keep density constant
@@ -35,7 +36,7 @@ void set_size( int n, double &size )
 //  Initialize the particle positions and velocities
 void init_particles( int n, particle_t *p, double &size )
 {
-    srand48( time( nullptr ) );
+    srand48( time( NULL ) );
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
     

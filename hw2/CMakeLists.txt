@@ -7,6 +7,12 @@ project(hw2)
 # Binary files will output to the bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
+# Copy running scripts from ../scripts/ to ../bin/
+file(MAKE_DIRECTORY bin/)
+configure_file(scripts/auto-bridges-serial ../bin/auto-bridges-serial COPYONLY)
+configure_file(scripts/auto-bridges-openmp16 ../bin/auto-bridges-openmp16 COPYONLY)
+
+
 # Sets flags, to be used for different targets
 set(COMMON_FLAGS, " -O3 -Wall -Wextra -pedantic ") # ALL will have these
 set(SERIAL_FLAGS, "")
@@ -35,8 +41,11 @@ add_library(chunk STATIC src/chunk.cpp include/chunk.h)
 add_executable(serial src/serial.cpp include/common.h include/chunk.h)
 target_compile_options(serial
         PRIVATE "${SERIAL_FLAGS}")
-#        PRIVATE "${COMMON_FLAGS} ${SERIAL_FLAGS}")
 target_link_libraries(serial common chunk)
+
+# Make target autograder
+add_executable(autograder src/autograder.cpp include/common.h)
+target_link_libraries(autograder common)
 
 # Make target "Hello world"!
 #add_executable(hello src/helloworld.cpp include/thing.h)

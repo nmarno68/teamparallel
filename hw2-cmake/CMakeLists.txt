@@ -28,19 +28,19 @@ add_compile_options("${COMMON_FLAGS}")
 #   STATIC -> .a
 #   SHARED -> .so
 add_library(thing STATIC src/thing.cpp)
-add_library(common STATIC src/common.cpp)
-add_library(bin STATIC src/bin.cpp)
+add_library(common STATIC src/common.cpp include/chunk.h)
+add_library(chunk STATIC src/chunk.cpp include/chunk.h)
 
 # Make target serial
-add_executable(serial src/serial.cpp include/common.h include/bin.h)
+add_executable(serial src/serial.cpp include/common.h include/chunk.h)
 target_compile_options(serial
         PRIVATE "${SERIAL_FLAGS}")
 #        PRIVATE "${COMMON_FLAGS} ${SERIAL_FLAGS}")
-target_link_libraries(serial common bin)
+target_link_libraries(serial common chunk)
 
 ## Make target "Hello world"!
 add_executable(hello src/helloworld.cpp include/thing.h)
-target_link_libraries(hello thing)
+target_link_libraries(hello common thing)
 
 
 

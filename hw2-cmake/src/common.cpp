@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 #include <assert.h>
 #include <float.h>
 #include <string.h>
@@ -7,17 +8,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include "../include/common.h"
-
-double size;
-
-//
-//  tuned constants
-//
-#define density 0.0005
-#define mass    0.01
-#define cutoff  0.01
-#define min_r   (cutoff/100)
-#define dt      0.0005
 
 //
 //  timer
@@ -36,21 +26,16 @@ double read_timer( )
     return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
 }
 
-//
 //  keep density constant
-//
-void set_size( int n )
+void set_size( int n, double &size )
 {
     size = sqrt( density * n );
 }
 
-//
 //  Initialize the particle positions and velocities
-//
-void init_particles( int n, particle_t *p )
+void init_particles( int n, particle_t *p, double &size )
 {
     srand48( time( nullptr ) );
-        
     int sx = (int)ceil(sqrt((double)n));
     int sy = (n+sx-1)/sx;
     
@@ -78,6 +63,10 @@ void init_particles( int n, particle_t *p )
         //
         p[i].vx = drand48()*2-1;
         p[i].vy = drand48()*2-1;
+
+        // Set initial acceleration to 0
+        p[i].ax = 0.0;
+        p[i].ay = 0.0;
     }
     free( shuffle );
 }
@@ -85,21 +74,25 @@ void init_particles( int n, particle_t *p )
 //
 //  interact two particles
 //
-void apply_force( particle_t &particle, particle_t &neighbor , double *dmin, double *davg, int *navg)
+void apply_force( particle_t &particle, particle_t &neighbor , double *dmin, double *davg, int *navg, double &size)
 {
-
     double dx = neighbor.x - particle.x;
     double dy = neighbor.y - particle.y;
     double r2 = dx * dx + dy * dy;
-    if( r2 > cutoff*cutoff )
+    if( r2 > cutoff*cutoff ){
         return;
+    }
 	if (r2 != 0)
-        {
-	   if (r2/(cutoff*cutoff) < *dmin * (*dmin))
+    {
+//	    if(r2/(cutoff*cutoff) < 0.4){
+//	        std::cout << "r2: " << r2 << "\ndx: " << dx << "\ndy: " << dy << "\nr2/cutoff: " << r2/(cutoff*cutoff) << std::endl;
+//	    }
+	   if (r2/(cutoff*cutoff) < *dmin * (*dmin)){
 	      *dmin = sqrt(r2)/cutoff;
-           (*davg) += sqrt(r2)/cutoff;
-           (*navg) ++;
-        }
+	   }
+        (*davg) += sqrt(r2)/cutoff;
+        (*navg) ++;
+    }
 		
     r2 = fmax( r2, min_r*min_r );
     double r = sqrt( r2 );
@@ -115,7 +108,7 @@ void apply_force( particle_t &particle, particle_t &neighbor , double *dmin, dou
 //
 //  integrate the ODE
 //
-void move( particle_t &p )
+void move( particle_t &p, double &size )
 {
     //
     //  slightly simplified Velocity Verlet integration
@@ -144,7 +137,7 @@ void move( particle_t &p )
 //
 //  I/O routines
 //
-void save( FILE *f, int n, particle_t *p )
+void save( FILE *f, int n, particle_t *p, double &size )
 {
     static bool first = true;
     if( first )
@@ -168,6 +161,14 @@ int find_option( int argc, char **argv, const char *option )
 }
 
 int read_int( int argc, char **argv, const char *option, int default_value )
+{
+    int iplace = find_option( argc, argv, option );
+    if( iplace >= 0 && iplace < argc-1 )
+        return atoi( argv[iplace+1] );
+    return default_value;
+}
+
+double read_double( int argc, char **argv, const char *option, double default_value )
 {
     int iplace = find_option( argc, argv, option );
     if( iplace >= 0 && iplace < argc-1 )

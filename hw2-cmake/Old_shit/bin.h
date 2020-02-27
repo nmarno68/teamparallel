@@ -1,6 +1,6 @@
 #include <vector>
 #include <list>
-#include "common.h"
+#include "../include/common.h"
 
 #ifndef TEAMPARALLEL_BIN_H
 #define TEAMPARALLEL_BIN_H
@@ -24,7 +24,7 @@ class Bin{
         void add_particle(particle_t* new_p);
 
         // Does the particle-particle interactions
-        void interact();
+        void interact(double size);
 
         // Check if particles are out of the bin's bounds, and move them to a neighboring bin if they are
         void validate();

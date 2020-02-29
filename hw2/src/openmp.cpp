@@ -4,16 +4,20 @@
 #include <cmath>
 #include <iostream>
 #include <omp.h>
+#include "omp.h"
 #include "../include/common.h"
 #include "../include/chunk.h"
 
-//
 //  benchmarking program
-//
 int main( int argc, char **argv )
 {
-    double avg_particles_per_chunk = 0;
-    double avg_ghosts_per_chunk = 0;
+//
+//    #pragma omp parallel
+//    {
+//        int num_threads = omp_get_num_threads();
+//        std::cout << "There are " << num_threads << "threads." << std::endl;
+//    };
+//    return 0;
     // Process command line arguments
     //      If option is help, show help menu
     if( find_option( argc, argv, "-h" ) >= 0 )
@@ -70,6 +74,9 @@ int main( int argc, char **argv )
     }
 
     // Initialize vars
+    int num_threads;
+    double avg_particles_per_chunk = 0;
+    double avg_ghosts_per_chunk = 0;
     int particle_index, chunk_x, chunk_y, x_lower, x_upper, y_lower, y_upper;
     bool x_mismatch, y_mismatch;
     int navg, nabsavg;
@@ -79,69 +86,68 @@ int main( int argc, char **argv )
     absmin = 1.0;
     absavg = 0.0;
     nabsavg = 0;
-    for(int step=0; step<NSTEPS; step++){
+    num_threads = omp_get_num_threads();
+    for (int step = 0; step < NSTEPS; step++) {
         // Reset stats
-	    navg = 0;
+        navg = 0;
         davg = 0.0;
-	    dmin = 1.0;
+        dmin = 1.0;
 
         // Assign particles to their chunks
-        for(particle_index=0; particle_index<num_particles; particle_index++){
+        for (particle_index = 0; particle_index < num_particles; particle_index++) {
             // Calculate the chunk the particle belongs to and add it to that chunk
-            chunk_x = int(particles[particle_index].x/field_size * num_chunks);
-            chunk_y = int(particles[particle_index].y/field_size * num_chunks);
-            chunks[chunk_x+chunk_y*num_chunks].add_particle(&particles[particle_index]);
+            chunk_x = int(particles[particle_index].x / field_size * num_chunks);
+            chunk_y = int(particles[particle_index].y / field_size * num_chunks);
+            chunks[chunk_x + chunk_y * num_chunks].add_particle(&particles[particle_index]);
 
             // Check if the particle is a ghost for any adjacent chunks
             //  If the chunk changes when x or y is changed by +- cutoff, then it is also a ghost for those chunks
-            x_lower = max(int((particles[particle_index].x-cutoff)/field_size * num_chunks), 0);
-            x_upper = min(int((particles[particle_index].x+cutoff)/field_size * num_chunks), num_chunks-1);
-            y_lower = max(int((particles[particle_index].y-cutoff)/field_size * num_chunks), 0);
-            y_upper = min(int((particles[particle_index].y+cutoff)/field_size * num_chunks), num_chunks-1);
+            x_lower = max(int((particles[particle_index].x - cutoff) / field_size * num_chunks), 0);
+            x_upper = min(int((particles[particle_index].x + cutoff) / field_size * num_chunks), num_chunks - 1);
+            y_lower = max(int((particles[particle_index].y - cutoff) / field_size * num_chunks), 0);
+            y_upper = min(int((particles[particle_index].y + cutoff) / field_size * num_chunks), num_chunks - 1);
             x_mismatch = x_lower != x_upper;
             y_mismatch = y_lower != y_upper; // If lower and upper are different, then there's a mismatch
 
             // Add ghosts as appropriate
-            if(!x_mismatch && !y_mismatch) { // No mismatches, go to next particle
+            if (!x_mismatch && !y_mismatch) { // No mismatches, go to next particle
                 continue;
             }
-            if(x_mismatch) { // x is off
-                if(x_lower != chunk_x){
-                    chunks[x_lower+chunk_y*num_chunks].add_ghost(&particles[particle_index]);
+            if (x_mismatch) { // x is off
+                if (x_lower != chunk_x) {
+                    chunks[x_lower + chunk_y * num_chunks].add_ghost(&particles[particle_index]);
                 }
-                if(x_upper != chunk_x){
-                    chunks[x_upper+chunk_y*num_chunks].add_ghost(&particles[particle_index]);
-                }
-            }
-            if(y_mismatch) { // y is off
-                if(y_lower != chunk_y){
-                    chunks[chunk_x+y_lower*num_chunks].add_ghost(&particles[particle_index]);
-                }
-                if(y_upper != chunk_y){
-                    chunks[chunk_x+y_upper*num_chunks].add_ghost(&particles[particle_index]);
+                if (x_upper != chunk_x) {
+                    chunks[x_upper + chunk_y * num_chunks].add_ghost(&particles[particle_index]);
                 }
             }
-            if(x_mismatch && y_mismatch) { // Both are off
-                if(x_lower != chunk_x){ // Using x_lower
-                    if(y_lower != chunk_y){
-                        chunks[x_lower+y_lower*num_chunks].add_ghost(&particles[particle_index]);
+            if (y_mismatch) { // y is off
+                if (y_lower != chunk_y) {
+                    chunks[chunk_x + y_lower * num_chunks].add_ghost(&particles[particle_index]);
+                }
+                if (y_upper != chunk_y) {
+                    chunks[chunk_x + y_upper * num_chunks].add_ghost(&particles[particle_index]);
+                }
+            }
+            if (x_mismatch && y_mismatch) { // Both are off
+                if (x_lower != chunk_x) { // Using x_lower
+                    if (y_lower != chunk_y) {
+                        chunks[x_lower + y_lower * num_chunks].add_ghost(&particles[particle_index]);
                     }
-                    if(y_upper != chunk_y){
-                        chunks[x_lower+y_upper*num_chunks].add_ghost(&particles[particle_index]);
+                    if (y_upper != chunk_y) {
+                        chunks[x_lower + y_upper * num_chunks].add_ghost(&particles[particle_index]);
                     }
                 }
-                if(x_upper != chunk_x){ // Using x_upper
-                    if(y_lower != chunk_y){
-                        chunks[x_upper+y_lower*num_chunks].add_ghost(&particles[particle_index]);
+                if (x_upper != chunk_x) { // Using x_upper
+                    if (y_lower != chunk_y) {
+                        chunks[x_upper + y_lower * num_chunks].add_ghost(&particles[particle_index]);
                     }
-                    if(y_upper != chunk_y){
-                        chunks[x_upper+y_upper*num_chunks].add_ghost(&particles[particle_index]);
+                    if (y_upper != chunk_y) {
+                        chunks[x_upper + y_upper * num_chunks].add_ghost(&particles[particle_index]);
                     }
                 }
             }
         }
-
-
         #pragma omp parallel
         {
             // Apply forces
@@ -149,6 +155,8 @@ int main( int argc, char **argv )
             for (int c = 0; c < num_chunks * num_chunks; c++) {
                 chunks[c].apply_forces();
             }
+            #pragma omp barrier
+
             // Move particles & reset acceleration
             #pragma omp parallel for
             for (int i = 0; i < num_particles; i++) {
@@ -156,41 +164,40 @@ int main( int argc, char **argv )
                 particles[i].ax = particles[i].ay = 0.0;
             }
         }
-
         // Update stats & reset chunks
         int temp_num_ghosts = 0;
         int temp_num_particles = 0;
-        for(int c=0; c<num_chunks*num_chunks; c++){
+        for (int c = 0; c < num_chunks * num_chunks; c++) {
             temp_num_ghosts += chunks[c].get_num_ghosts();
             temp_num_particles += chunks[c].get_num_particles();
             navg += chunks[c].get_navg();
             davg += chunks[c].get_davg();
             double newmin = chunks[c].get_dmin();
-            if(chunks[c].get_dmin() < 0.4){
+            if (chunks[c].get_dmin() < 0.4) {
                 std::cout << "Step:" << step << "\n";
                 std::cout << "Chunk is ##: " << c << std::endl;
             }
-            if(newmin < dmin){
+            if (newmin < dmin) {
                 dmin = newmin;
             }
             chunks[c].clear();
         }
-        avg_ghosts_per_chunk += double(temp_num_ghosts) / (num_chunks*num_chunks);
-        avg_particles_per_chunk += double(num_particles) / (num_chunks*num_chunks);
+        avg_ghosts_per_chunk += double(temp_num_ghosts) / (num_chunks * num_chunks);
+        avg_particles_per_chunk += double(num_particles) / (num_chunks * num_chunks);
 
         // Update correctness output
-        if (navg){
-            absavg += davg/navg;
+        if (navg) {
+            absavg += davg / navg;
             nabsavg++;
-            if (dmin < absmin){
+            if (dmin < absmin) {
                 absmin = dmin;
             }
         }
 
         // Save snapshot if set to do so
-        if(!opt_no && savename){
-            if(step%SAVEFREQ==0){
-                save( fsave, num_particles, particles, field_size);
+        if (!opt_no && savename) {
+            if (step % SAVEFREQ == 0) {
+                save(fsave, num_particles, particles, field_size);
             }
         }
     }
@@ -212,7 +219,7 @@ int main( int argc, char **argv )
 
     // Save summary if set to do so
     if(fsum){
-        fprintf(fsum, "%d %g\n", num_particles, simulation_time);
+        fprintf(fsum, "%d %d %g\n", num_particles, num_threads, simulation_time);
     }
 
     if(verbose){

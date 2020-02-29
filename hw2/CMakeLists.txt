@@ -6,6 +6,8 @@ project(hw2)
 
 # Binary files will output to the bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS -fopenmp)
 
 # Copy running scripts from ../scripts/ to ../bin/
 file(MAKE_DIRECTORY bin/)
@@ -14,9 +16,9 @@ configure_file(scripts/auto-bridges-openmp16 ../bin/auto-bridges-openmp16 COPYON
 
 
 # Sets flags, to be used for different targets
-set(COMMON_FLAGS, " -O3 -Wall -Wextra -pedantic ") # ALL will have these
+set(COMMON_FLAGS, -O3 -Wall -Wextra -pedantic) # ALL will have these
 set(SERIAL_FLAGS, "")
-set(OPENMP_FLAGS, " -fopenmp ")
+set(OPENMP_FLAGS, -fopenmp)
 set(MPI_FLAGS, "")
 set(GPU_FLAGS, "")
 set(AUTOGRADER_FLAGS, "")
@@ -25,7 +27,7 @@ set(AUTOGRADER_FLAGS, "")
 set(COMMON_COMPILER, "g++")
 
 # Actually set common flags
-add_compile_options("${COMMON_FLAGS}")
+add_compile_options(${COMMON_FLAGS})
 
 # Set compiler to g++
 #set(CMAKE_CXX_COMPILER, "${COMMON_COMPILER}")
@@ -39,18 +41,23 @@ add_library(chunk STATIC src/chunk.cpp include/chunk.h)
 
 # Make target serial
 add_executable(serial src/serial.cpp include/common.h include/chunk.h)
-target_compile_options(serial
-        PRIVATE "${SERIAL_FLAGS}")
+target_compile_options(serial PRIVATE ${SERIAL_FLAGS})
 target_link_libraries(serial common chunk)
 
 # Make target openmp
 add_executable(openmp src/openmp.cpp include/common.h include/chunk.h)
-target_compile_options(openmp
-        PRIVATE "${OPENMP_FLAGS}")
+#set_target_properties( openmp
+#        PROPERTIES COMPILE_FLAGS "${OPENMP_FLAGS}")
+#target_compile_options(openmp
+#        PRIVATE "${OPENMP_FLAGS}")
+target_compile_options(openmp PRIVATE ${OPENMP_FLAGS})
 target_link_libraries(openmp common chunk)
 
+add_executable(openmp_test src/openmp_test.cpp)
+target_compile_options(openmp_test PRIVATE ${OPENMP_FLAGS})
+
 # Make target autograder
-add_executable(autograder src/autograder.cpp include/common.h)
+add_executable(autograder src/autograder.cpp include/common.h src/openmp_test.cpp)
 target_link_libraries(autograder common)
 
 # Make target "Hello world"!
